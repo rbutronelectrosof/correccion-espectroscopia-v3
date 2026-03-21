@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Información - Clasificación Espectral</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 Información del Método</h1>
+            <p class="subtitle">Clasificación Espectral Corregida - Versión 2.0</p>
+        </header>
+
+        <main>
+            <section>
+                <h2>Problemas Críticos Corregidos</h2>
+
+                <div class="info-card">
+                    <h3>1. Normalización Incorrecta ⚠️</h3>
+                    <p><strong>Problema Original:</strong> Normalización min-max que distorsionaba las mediciones.</p>
+                    <p><strong>Solución:</strong> Normalización al continuo = 1.0 con sigma-clipping para rechazar rayos cósmicos.</p>
+                    <pre style="background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto;">
+# ANTES (incorrecto)
+flux_normalized = (flux - min) / (max - min)
+
+# AHORA (correcto)
+continuum = ajuste_spline(puntos_continuo)
+flux_normalized = flux / continuum  # continuo = 1.0
+                    </pre>
+                </div>
+
+                <div class="info-card">
+                    <h3>2. FWHM vs Ancho Equivalente ⚠️</h3>
+                    <p><strong>Problema:</strong> Usaba FWHM (ancho) en lugar de EW (intensidad).</p>
+                    <p><strong>Por qué es grave:</strong> La clasificación espectral se basa en INTENSIDADES, no en anchos.</p>
+                    <p><strong>Solución:</strong> Cálculo de anchos equivalentes:</p>
+                    <pre style="background: #f8f9fa; padding: 15px; border-radius: 5px;">
+EW = ∫(1 - F_λ/F_continuo) dλ
+
+Con continuo = 1.0:
+EW = ∫(1 - F_λ) dλ
+                    </pre>
+                </div>
+
+                <div class="info-card">
+                    <h3>3. Comparaciones Erróneas ❌</h3>
+                    <p><strong>Problema:</strong> Comparaba longitudes de onda en lugar de intensidades.</p>
+                    <pre style="background: #fff5f5; padding: 15px; border-radius: 5px;">
+# INCORRECTO (sin sentido físico)
+if wavelength1 > wavelength2:
+    tipo = 'B'
+
+# CORRECTO (compara intensidades)
+if He_I_EW > He_II_EW:
+    tipo = 'O tardío'
+                    </pre>
+                </div>
+
+                <div class="info-card">
+                    <h3>4. Identificaciones Incorrectas</h3>
+                    <ul>
+                        <li><strong>3933 Å:</strong> Ca II K (NO He) ✅</li>
+                        <li><strong>3968 Å:</strong> Ca II H (NO He) ✅</li>
+                        <li>Añadidas líneas de Si III/IV/II, Mg II, N V, O II</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section>
+                <h2>Esquema de Clasificación</h2>
+
+                <h3>Tipo O - Estrellas Muy Calientes</h3>
+                <div class="spectral-types">
+                    <p><strong>Criterio:</strong> He II presente (líneas 4686, 4542, 4200 Å)</p>
+                    <p><strong>Subtipos:</strong></p>
+                    <ul>
+                        <li><strong>O3-O6 (tempranas):</strong> He I &lt; 0.5 × He II
+                            <ul>
+                                <li>O3: N V 4604 &gt; He I 4471</li>
+                                <li>O4: N V detectado</li>
+                                <li>O5-O6: N V ausente</li>
+                            </ul>
+                        </li>
+                        <li><strong>O7:</strong> He I ≈ He II</li>
+                        <li><strong>O8-B0 (tardías):</strong> He I &gt; He II
+                            <ul>
+                                <li>Usa He I 4387, Si III 4553</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+
+                <h3>Tipo B - He I Dominante</h3>
+                <div class="spectral-types">
+                    <p><strong>Criterio:</strong> He I fuerte, He II ausente</p>
+                    <p><strong>Subtipos:</strong></p>
+                    <ul>
+                        <li><strong>B tempranas (B0-B5):</strong> He I &gt;&gt; Mg II
+                            <ul>
+                                <li>B0: He II débil + Si III</li>
+                                <li>B1-B2: Si III &gt; Si II</li>
+                                <li>B3-B5: Si II creciente</li>
+                            </ul>
+                        </li>
+                        <li><strong>B tardías (B6-B9):</strong> Mg II comparable a He I</li>
+                    </ul>
+                </div>
+
+                <h3>Tipos A, F, G, K - Secuencia Solar</h3>
+                <div class="spectral-types">
+                    <ul>
+                        <li><strong>A:</strong> H Balmer máxima (&gt;8 Å), Ca II K débil</li>
+                        <li><strong>F:</strong> H débil (2-8 Å), Ca II K fuerte (&gt;2 Å)</li>
+                        <li><strong>G:</strong> Ca II K muy fuerte (&gt;3 Å), H muy débil</li>
+                        <li><strong>K:</strong> Ca II K dominante, metales abundantes</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section>
+                <h2>Líneas Espectrales Configuradas (45 líneas)</h2>
+
+                <div class="info-grid">
+                    <div>
+                        <h4>He II (Tipo O)</h4>
+                        <ul style="font-size: 0.9em;">
+                            <li>4686 Å (principal)</li>
+                            <li>4542 Å</li>
+                            <li>4200 Å</li>
+                            <li>5411 Å</li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4>He I (Tipo OB)</h4>
+                        <ul style="font-size: 0.9em;">
+                            <li>4471 Å (principal)</li>
+                            <li>4387 Å (O tardías)</li>
+                            <li>4026, 4922, 5016 Å</li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4>Hidrógeno (Balmer)</h4>
+                        <ul style="font-size: 0.9em;">
+                            <li>H-α: 6563 Å</li>
+                            <li>H-β: 4861 Å</li>
+                            <li>H-γ: 4340 Å</li>
+                            <li>H-δ: 4102 Å</li>
+                            <li>H-ε: 3970 Å</li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4>Silicio (B tempranas)</h4>
+                        <ul style="font-size: 0.9em;">
+                            <li>Si IV: 4089, 4116 Å</li>
+                            <li>Si III: 4553, 4568, 4575 Å</li>
+                            <li>Si II: 4128, 4131, 5041, 5056 Å</li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4>Calcio (Tipos A-K)</h4>
+                        <ul style="font-size: 0.9em;">
+                            <li>Ca II K: 3933 Å</li>
+                            <li>Ca II H: 3968 Å</li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4>Otros</h4>
+                        <ul style="font-size: 0.9em;">
+                            <li>Mg II: 4481 Å (B tardías)</li>
+                            <li>N V: 4604, 4620 Å (O tempranas)</li>
+                            <li>O II: 4591, 4596 Å (O9-B2)</li>
+                            <li>Fe II: 4923, 5018 Å</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2>Referencias</h2>
+                <ul>
+                    <li>Gray, D. F. (2005). "The Observation and Analysis of Stellar Photospheres"</li>
+                    <li>Jaschek, C. & Jaschek, M. (1987). "The Classification of Stars"</li>
+                    <li>Walborn, N. R. et al. (2002). "Revised Spectral Types of O Stars"</li>
+                    <li><strong>Documento interno:</strong> INFORME_PROBLEMAS_CRITICOS.md</li>
+                </ul>
+            </section>
+
+            <div style="text-align: center; margin-top: 40px;">
+                <a href="/" class="btn btn-primary">⬅️ Volver a Clasificación</a>
+            </div>
+        </main>
+
+        <footer>
+            <p>Versión 2.0 - Clasificación Espectral Corregida (2025)</p>
+        </footer>
+    </div>
+</body>
+</html>

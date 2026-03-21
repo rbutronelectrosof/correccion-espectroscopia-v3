@@ -1,0 +1,25 @@
+{
+  "model_type": "cnn_1d",
+  "n_samples": 861,
+  "n_classes": 6,
+  "classes": [
+    "A",
+    "B",
+    "F",
+    "K",
+    "M",
+    "O"
+  ],
+  "test_size": 0.2,
+  "timestamp": "2026-02-28T20:49:08.911013",
+  "accuracy_test": 0.45086705684661865,
+  "final_loss": 1.7787644863128662,
+  "epochs_trained": 6,
+  "spectrum_length": 1000,
+  "epochs": 40,
+  "batch_size": 32,
+  "learning_rate": 0.0005,
+  "dropout_rate": 0.3,
+  "dense_units": 128,
+  "training_time_seconds": 124.16758847236633
+}

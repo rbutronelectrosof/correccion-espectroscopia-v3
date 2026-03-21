@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Guia del Proyecto - Sistema de Clasificacion Espectral</title>
+    <style>
+        body { font-family: Calibri, Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; line-height: 1.6; }
+        h1 { color: #1a365d; border-bottom: 3px solid #1a365d; padding-bottom: 10px; }
+        h2 { color: #2c5282; border-bottom: 1px solid #cbd5e0; padding-bottom: 5px; margin-top: 30px; }
+        h3 { color: #4a5568; }
+        table { border-collapse: collapse; width: 100%; margin: 15px 0; }
+        th, td { border: 1px solid #cbd5e0; padding: 10px; text-align: left; }
+        th { background-color: #edf2f7; font-weight: bold; }
+        tr:nth-child(even) { background-color: #f7fafc; }
+        code { background-color: #edf2f7; padding: 2px 6px; border-radius: 3px; font-family: Consolas, monospace; }
+        pre { background-color: #1a202c; color: #e2e8f0; padding: 15px; border-radius: 5px; overflow-x: auto; font-family: Consolas, monospace; }
+        .folder { color: #2b6cb0; font-weight: bold; }
+        .file { color: #38a169; }
+        .highlight { background-color: #fefcbf; padding: 10px; border-left: 4px solid #d69e2e; margin: 15px 0; }
+        .box { border: 2px solid #4a5568; padding: 15px; margin: 15px 0; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+<h1>GUIA DEL PROYECTO<br>Sistema de Clasificacion Espectral Estelar</h1>
+
+<h2>1. DESCRIPCION GENERAL</h2>
+<p>Este sistema clasifica automaticamente estrellas segun su <strong>tipo espectral</strong> (O, B, A, F, G, K, M) analizando sus espectros de luz. Utiliza multiples metodos de clasificacion combinados para lograr una <strong>precision del 86.5%</strong>.</p>
+
+<h3>Tipos Espectrales (de mas caliente a mas fria)</h3>
+<table>
+    <tr><th>Tipo</th><th>Temperatura</th><th>Color</th><th>Ejemplo</th></tr>
+    <tr><td><strong>O</strong></td><td>&gt;30,000 K</td><td>Azul</td><td>Estrellas masivas</td></tr>
+    <tr><td><strong>B</strong></td><td>10,000-30,000 K</td><td>Azul-blanco</td><td>Rigel</td></tr>
+    <tr><td><strong>A</strong></td><td>7,500-10,000 K</td><td>Blanco</td><td>Sirio</td></tr>
+    <tr><td><strong>F</strong></td><td>6,000-7,500 K</td><td>Blanco-amarillo</td><td>Procion</td></tr>
+    <tr><td><strong>G</strong></td><td>5,200-6,000 K</td><td>Amarillo</td><td><strong>Sol</strong></td></tr>
+    <tr><td><strong>K</strong></td><td>3,700-5,200 K</td><td>Naranja</td><td>Arcturo</td></tr>
+    <tr><td><strong>M</strong></td><td>&lt;3,700 K</td><td>Rojo</td><td>Betelgeuse</td></tr>
+</table>
+
+<h2>2. ESTRUCTURA DE CARPETAS</h2>
+<div class="box">
+<pre style="background: white; color: black;">
+Sistema de Clasificacion Espectral/
+|
++-- <span class="file">INSTALAR.bat</span>        -> Ejecutar primero para instalar dependencias
++-- <span class="file">ENTRENAR.bat</span>        -> Entrenar los modelos de Machine Learning
++-- <span class="file">INICIAR.bat</span>         -> Iniciar la aplicacion web
+|
++-- <span class="folder">src/</span>                -> CODIGO FUENTE PRINCIPAL
+|   +-- spectral_classification_corrected.py   (Motor de clasificacion)
+|   +-- spectral_validation.py                 (Sistema de votacion)
+|   +-- neural_classifiers.py                  (Redes neuronales)
+|   +-- train_and_validate.py                  (Entrenamiento arbol)
+|   +-- train_neural_models.py                 (Entrenamiento KNN/CNN)
+|
++-- <span class="folder">scripts/</span>            -> SCRIPTS DE PROCESAMIENTO
+|   +-- procesar_una_estrella.py    (Analizar un espectro individual)
+|   +-- procesar_lote_estrellas.py  (Analizar multiples espectros)
+|
++-- <span class="folder">data/</span>               -> DATOS DE ENTRADA
+|   +-- elodie/         (Catalogo de ~860 espectros etiquetados)
+|   +-- espectros/      (Espectros adicionales para analizar)
+|
++-- <span class="folder">models/</span>             -> MODELOS ENTRENADOS
+|   +-- decision_tree.pkl    (Arbol de decision)
+|   +-- knn_model.pkl        (K-Nearest Neighbors)
+|   +-- cnn_model.h5         (Red neuronal convolucional)
+|
++-- <span class="folder">webapp/</span>             -> APLICACION WEB
+|   +-- app.py          (Servidor Flask)
+|   +-- templates/      (Interfaz HTML)
+|   +-- static/         (Estilos CSS y JavaScript)
+|
++-- <span class="folder">docs/</span>               -> DOCUMENTACION
+</pre>
+</div>
+
+<h2>3. COMO FUNCIONA EL SISTEMA</h2>
+
+<h3>Pipeline de Procesamiento</h3>
+<div class="box" style="text-align: center;">
+    <p><strong>ENTRADA:</strong> Archivo de espectro (.txt o .fits)</p>
+    <p style="font-size: 24px;">&#8595;</p>
+
+    <div style="border: 2px solid #2b6cb0; padding: 10px; margin: 10px; background: #ebf8ff;">
+        <strong>1. NORMALIZACION</strong><br>
+        Ajuste del continuo + Sigma-clipping
+    </div>
+    <p style="font-size: 24px;">&#8595;</p>
+
+    <div style="border: 2px solid #2b6cb0; padding: 10px; margin: 10px; background: #ebf8ff;">
+        <strong>2. MEDICION DE LINEAS</strong><br>
+        Detecta 50+ lineas espectrales<br>
+        Calcula anchos equivalentes
+    </div>
+    <p style="font-size: 24px;">&#8595;</p>
+
+    <div style="border: 2px solid #38a169; padding: 15px; margin: 10px; background: #f0fff4;">
+        <strong>3. CLASIFICACION MULTI-METODO</strong><br><br>
+        <table style="width: 80%; margin: auto;">
+            <tr><td>Clasificador Fisico (reglas astronomicas)</td><td><strong>10%</strong></td></tr>
+            <tr><td>Arbol de Decision (scikit-learn)</td><td><strong>40%</strong></td></tr>
+            <tr><td>Template Matching (comparacion)</td><td><strong>10%</strong></td></tr>
+            <tr><td>KNN / CNN (redes neuronales)</td><td><strong>40%</strong></td></tr>
+        </table>
+    </div>
+    <p style="font-size: 24px;">&#8595;</p>
+
+    <div style="border: 2px solid #805ad5; padding: 10px; margin: 10px; background: #faf5ff;">
+        <strong>4. VOTACION PONDERADA</strong><br>
+        Combina resultados + Calcula confianza
+    </div>
+    <p style="font-size: 24px;">&#8595;</p>
+
+    <p><strong>SALIDA:</strong> Tipo espectral + Confianza (%)<br>
+    <em>Ejemplo: "G2V" con 87% confianza</em></p>
+</div>
+
+<h2>4. LINEAS ESPECTRALES DIAGNOSTICAS</h2>
+
+<h3>Hidrogeno (Serie de Balmer) - Tipos A-F</h3>
+<table>
+    <tr><th>Linea</th><th>Longitud de onda</th></tr>
+    <tr><td>H-alpha</td><td>6563 Angstrom</td></tr>
+    <tr><td>H-beta</td><td>4861 Angstrom</td></tr>
+    <tr><td>H-gamma</td><td>4341 Angstrom</td></tr>
+    <tr><td>H-delta</td><td>4102 Angstrom</td></tr>
+</table>
+
+<h3>Helio (Estrellas calientes) - Tipos O-B</h3>
+<table>
+    <tr><th>Linea</th><th>Longitud de onda</th><th>Indica</th></tr>
+    <tr><td>He I</td><td>4471 Angstrom</td><td>Tipo B</td></tr>
+    <tr><td>He II</td><td>4686 Angstrom</td><td>Tipo O</td></tr>
+</table>
+
+<h3>Calcio (Estrellas frias) - Tipos F-K</h3>
+<table>
+    <tr><th>Linea</th><th>Longitud de onda</th></tr>
+    <tr><td>Ca II K</td><td>3934 Angstrom</td></tr>
+    <tr><td>Ca II H</td><td>3969 Angstrom</td></tr>
+</table>
+
+<h3>Bandas de TiO (Estrellas muy frias) - Tipo M</h3>
+<table>
+    <tr><th>Banda</th><th>Longitudes de onda</th></tr>
+    <tr><td>TiO</td><td>4761, 4955, 5167 Angstrom</td></tr>
+</table>
+
+<h2>5. INSTRUCCIONES DE USO</h2>
+
+<div class="highlight">
+    <strong>Paso 1: Instalacion</strong><br>
+    Ejecutar: <code>INSTALAR.bat</code><br>
+    <em>Instala: numpy, scipy, matplotlib, pandas, scikit-learn, flask, astropy</em>
+</div>
+
+<div class="highlight">
+    <strong>Paso 2: Entrenamiento</strong> (opcional, ya hay modelos entrenados)<br>
+    Ejecutar: <code>ENTRENAR.bat</code><br>
+    <em>Entrena los modelos con el catalogo ELODIE (860 espectros)</em>
+</div>
+
+<div class="highlight">
+    <strong>Paso 3: Usar la aplicacion</strong><br>
+    Ejecutar: <code>INICIAR.bat</code><br>
+    <em>Abre el navegador en http://localhost:5000</em>
+</div>
+
+<h3>Uso de la interfaz web:</h3>
+<ol>
+    <li>Subir archivo de espectro (.txt o .fits)</li>
+    <li>Ver resultado de clasificacion</li>
+    <li>Examinar grafico con lineas detectadas</li>
+    <li>Exportar resultados a CSV</li>
+</ol>
+
+<h2>6. RENDIMIENTO DEL SISTEMA</h2>
+
+<table>
+    <tr><th>Metodo</th><th>Precision</th></tr>
+    <tr><td>Arbol de Decision</td><td>84%</td></tr>
+    <tr><td>KNN (k=5)</td><td>89%</td></tr>
+    <tr><td><strong>Sistema combinado</strong></td><td><strong>86.5%</strong></td></tr>
+</table>
+
+<h2>7. TECNOLOGIAS UTILIZADAS</h2>
+
+<table>
+    <tr><th>Componente</th><th>Tecnologia</th></tr>
+    <tr><td>Lenguaje</td><td>Python 3.8+</td></tr>
+    <tr><td>Machine Learning</td><td>scikit-learn</td></tr>
+    <tr><td>Redes Neuronales</td><td>TensorFlow/Keras</td></tr>
+    <tr><td>Servidor Web</td><td>Flask</td></tr>
+    <tr><td>Visualizacion</td><td>Matplotlib</td></tr>
+    <tr><td>Datos FITS</td><td>Astropy</td></tr>
+</table>
+
+<h2>8. REFERENCIAS</h2>
+<ul>
+    <li><strong>Catalogo ELODIE:</strong> Observatorio de Haute-Provence</li>
+    <li><strong>Clasificacion MK:</strong> Sistema Morgan-Keenan de clasificacion espectral</li>
+    <li><strong>Lineas espectrales:</strong> NIST Atomic Spectra Database</li>
+</ul>
+
+<hr>
+<p style="text-align: center; color: #718096;">
+    <strong>Version:</strong> 2.0 | <strong>Precision:</strong> 86.5% en votacion multi-metodo
+</p>
+
+</body>
+</html>

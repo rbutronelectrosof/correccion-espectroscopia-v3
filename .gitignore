@@ -1,0 +1,87 @@
+# ==============================================================================
+# SpectroClass — .gitignore
+# ==============================================================================
+
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+
+# Entornos virtuales
+venv/
+.venv/
+env/
+ENV/
+.env
+
+# Distribución / packaging
+build/
+dist/
+*.egg-info/
+*.egg
+
+# ── Jupyter ───────────────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+
+# ── IDEs ──────────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ── Sistema operativo ─────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Flask / webapp ────────────────────────────────────────────────────────────
+# Archivos subidos temporalmente
+webapp/uploads/
+webapp/results/
+results/
+
+# Flask secret key / configuración local
+instance/
+*.cfg
+
+# ── Modelos grandes (usar Git LFS si se necesitan en el repo) ─────────────────
+# CNN (25 MB) — añadir a Git LFS o excluir
+models/cnn_model.h5
+
+# Modelos entrenados localmente (se pueden regenerar con train_*.py)
+# Comenta estas líneas si quieres incluir los modelos pre-entrenados
+# models/decision_tree.pkl
+# models/knn_model.pkl
+# models/knn_scaler.pkl
+
+# ── Datos de catálogos y espectros ────────────────────────────────────────────
+# El catálogo ELODIE es grande; exclúyelo o usa Git LFS
+# data/elodie/
+
+# ── PDFs y documentos binarios grandes ───────────────────────────────────────
+# Libros de referencia (no redistribuir)
+*.pdf
+
+# ── Logs y reportes de ejecución ─────────────────────────────────────────────
+*.log
+logs/
+
+# ── Archivos de salida generados ─────────────────────────────────────────────
+*.png
+# Excepción: imágenes de documentación que SÍ queremos versionar
+!models/confusion_matrix.png
+!models/decision_tree.png
+!docs/**/*.png
+
+# ── Archivos de espectros de usuario (privacidad + tamaño) ───────────────────
+uploads/
+
+# ── Cache y temporales ───────────────────────────────────────────────────────
+*.tmp
+*.bak
+*.orig
+.cache/
