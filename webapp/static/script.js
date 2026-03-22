@@ -2828,6 +2828,44 @@ se usará el criterio alternativo (Balmer + Mg II + Fe I).</em></p>`
         ]
     },
 
+    // ─── BLOQUE Intermedias SIN cobertura azul (λ < 4000 Å) ───
+    'intermedias_alt': {
+        bloque: 'Tipos A / F — criterio alternativo',
+        paso: 'Paso 2 (sin Ca II K)',
+        pregunta: 'Tu espectro no cubre Ca II K / Hε. Compara la intensidad de Hδ (4102 Å) con Mg II 4481 Å y Fe I 4383 Å.',
+        hint: 'En A, Balmer (Hδ, Hγ, Hβ) domina claramente y los metales son muy débiles. En F los metales se vuelven comparables. Mg II 4481 aparece en A tardía.',
+        ayuda: {
+            titulo: 'Criterio alternativo A/F — Balmer + Mg II + Fe I',
+            contenido: `
+<p>Cuando el espectro no cubre la región del Ca II K (3934 Å) se usan indicadores dentro del rango 4000–5000 Å:</p>
+<ul>
+  <li><b>Hδ (4102 Å) / Hγ (4340 Å) / Hβ (4861 Å)</b> — La serie de Balmer es el termómetro principal. Máxima en A2, decrece hacia G.</li>
+  <li><b>Mg II 4481 Å</b> — Prácticamente ausente en A0–A3, visible en A5+, moderado en F. Es el mejor sustituto del Ca II K para estrellas A tardías.</li>
+  <li><b>Fe I 4383 Å</b> — Aparece en F y crece hacia G/K. Junto con Mg II ayuda a separar F de A.</li>
+</ul>
+<p><b>Regla rápida:</b> Si Hδ es claramente más alto que Mg II → tipo A. Si son comparables → A9/F0. Si Mg II y Fe I son visibles al mismo nivel que Balmer → tipo F.</p>
+<p><em>Confianza reducida (~75%) respecto al criterio canónico con Ca II K.</em></p>`
+        },
+        lineas: [
+            { lambda: 4101, label: 'Hδ',    color: '#fbbf24' },
+            { lambda: 4340, label: 'Hγ',    color: '#fbbf24' },
+            { lambda: 4383, label: 'Fe I',  color: '#94a3b8' },
+            { lambda: 4481, label: 'Mg II', color: '#60a5fa' },
+            { lambda: 4861, label: 'Hβ',    color: '#fbbf24' },
+        ],
+        opciones: [
+            { texto: 'Hδ/Hγ/Hβ muy intensas, Mg II y Fe I apenas visibles o ausentes',
+              icono: '⬅️', clase: 'opcion-menor',
+              detalle: 'A tardía (A5–A9)', siguiente: 'tipoA_media' },
+            { texto: 'Balmer moderado, Mg II visible (~¼ de Hδ), Fe I débil',
+              icono: '⚖️', clase: 'opcion-comp',
+              detalle: 'Límite A9 / F0–F2', siguiente: 'tipoF' },
+            { texto: 'Balmer moderado-débil, Mg II y Fe I claramente visibles',
+              icono: '➡️', clase: 'opcion-mayor',
+              detalle: 'F (F2–F8)', siguiente: 'tipoF' },
+        ]
+    },
+
     // ─── TIPO A temprana/inicial ───
     'tipoA': {
         bloque: 'Tipo A',
@@ -3642,6 +3680,38 @@ function arbolRenderizarNodo(nodoId) {
             ${ayudaTexto ? `<div class="arbol-opcion-ayuda" id="${ayudaId}">${ayudaTexto}</div>` : ''}
         </div>`;
     }).join('');
+
+    // ── Aviso de sin cobertura azul en nodo 'intermedias' ──────────────────
+    // Si el espectro cargado empieza por encima de 3950 Å, Ca II K y Hε son
+    // inobservables. Mostramos un banner de advertencia y añadimos un botón
+    // que redirige al nodo alternativo (Balmer + Mg II + Fe I).
+    if (nodoId === 'intermedias' && arbolEspectroData && arbolEspectroData.wmin > 3950) {
+        // Banner de aviso
+        const banner = document.createElement('div');
+        banner.className = 'criterio-banner criterio-alternativo';
+        banner.style.marginBottom = '0.75rem';
+        banner.innerHTML =
+            `⚠️ <b>Tu espectro empieza en ${Math.round(arbolEspectroData.wmin)} Å</b> — ` +
+            `Ca II K (3934 Å) y Hε (3968 Å) están <b>fuera de rango</b>. ` +
+            `Las opciones anteriores no son observables en tu espectro.`;
+        cont.insertBefore(banner, cont.firstChild);
+
+        // Botón de desvío al nodo alternativo
+        const wrapper = document.createElement('div');
+        wrapper.className = 'arbol-opcion-wrapper';
+        wrapper.innerHTML =
+            `<div class="arbol-opcion-row">
+                <button class="btn-arbol-opcion opcion-gen"
+                    onclick="arbolElegirOpcion({texto:'Sin cobertura Ca II K / Hε', siguiente:'intermedias_alt'})">
+                    <span class="arbol-opcion-icono">🔭</span>
+                    <span class="arbol-opcion-cuerpo">
+                        <span class="arbol-opcion-label">Mi espectro no cubre esa región (empieza en ~4000 Å)</span>
+                        <span class="arbol-opcion-detalle">→ Usar criterio alternativo: Hδ + Mg II 4481 + Fe I 4383</span>
+                    </span>
+                </button>
+            </div>`;
+        cont.appendChild(wrapper);
+    }
 
     // Botón volver
     const btnBack = document.getElementById('btnArbolBack');
