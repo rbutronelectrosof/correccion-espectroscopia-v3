@@ -2894,15 +2894,51 @@ se usará el criterio alternativo (Balmer + Mg II + Fe I).</em></p>`
         ]
     },
 
+    // ─── TIPO A temprana SIN cobertura azul ───
+    'tipoA_alt': {
+        bloque: 'Tipo A — criterio alternativo',
+        paso: 'Paso 3 (sin Ca II K)',
+        pregunta: 'Tu espectro no cubre Ca II K. Evalúa la anchura y profundidad de Hδ (4101 Å) y Hγ (4340 Å). ¿Hay alguna traza de Mg II 4481 Å?',
+        hint: 'En A0–A2 Hδ/Hγ son extremadamente anchas y profundas, y Mg II está ausente. En A3–A5 siguen siendo muy fuertes pero Mg II empieza a ser perceptible.',
+        ayuda: {
+            titulo: 'Subtipos A sin Ca II K — Balmer y Mg II 4481',
+            contenido: `
+<p>Sin acceso a Ca II K (3934 Å), el criterio de subtipo A usa la anchura de las líneas de Balmer y la aparición de Mg II 4481 Å:</p>
+<ul>
+  <li><b>A0–A2</b> (~10 000 K): Hδ y Hγ en su <em>anchura máxima</em> (muy largas y profundas). Mg II 4481 <b>ausente</b> por completo.</li>
+  <li><b>A3–A5</b> (~8 500–9 000 K): Hδ/Hγ siguen siendo muy fuertes pero algo menos anchas. Mg II 4481 puede aparecer como una traza muy débil.</li>
+</ul>
+<p><em>Confianza reducida (~70%) sin Ca II K como referencia.</em></p>`
+        },
+        lineas: [
+            { lambda: 4101, label: 'Hδ',    color: '#fbbf24' },
+            { lambda: 4340, label: 'Hγ',    color: '#fbbf24' },
+            { lambda: 4481, label: 'Mg II', color: '#60a5fa' },
+            { lambda: 4861, label: 'Hβ',    color: '#fbbf24' },
+        ],
+        opciones: [
+            { texto: 'Hδ/Hγ extremadamente anchas y profundas, Mg II ausente',
+              icono: '🔵', clase: 'opcion-menor',
+              detalle: 'A0 – A2',
+              siguiente: 'resultado',
+              resultado: { tipo: 'A', subtipo: 'A0–A2', criterio: 'Balmer en máximo absoluto, Mg II indetectable. ~9 000–10 000 K. (Criterio alternativo sin Ca II K)' }},
+            { texto: 'Hδ/Hγ muy fuertes pero algo menos anchas, Mg II apenas perceptible',
+              icono: '🔹', clase: 'opcion-comp',
+              detalle: 'A3 – A5',
+              siguiente: 'resultado',
+              resultado: { tipo: 'A', subtipo: 'A3–A5', criterio: 'Balmer aún dominante, Mg II tenue emergente. ~8 500–9 000 K. (Criterio alternativo sin Ca II K)' }},
+        ]
+    },
+
     // ─── TIPO A media ───
     'tipoA_media': {
         bloque: 'Tipo A Media',
         paso: 'Paso 3',
-        pregunta: '¿Hay líneas metálicas tenues visibles (Fe I, Mg I, Ca I)?',
-        hint: 'En A5–A9 comienzan a aparecer las primeras líneas metálicas débiles junto al Ca II ya notable.',
+        pregunta: '¿Hay líneas metálicas tenues visibles (Fe I 4383, Ca I 4226, Mg I)?',
+        hint: 'En A5–A7 los metales están aún ausentes o son invisibles. En A8–A9 Fe I y Ca I empiezan a aparecer como trazas débiles. Ca II K puede o no estar en rango.',
         ayuda: {
             titulo: 'Aparición de metales en A5–A9',
-            contenido: '<p>En A5–A9 comienzan las primeras trazas de Fe I, Mg I, Ca I junto a un Ca II ya notable. Indica descenso de temperatura bajo ~8 500 K.</p><ul><li><b>Solo Ca II K visible:</b> A5–A7 (~8 000 K)</li><li><b>Ca II + trazas Fe I / Ca I:</b> A8–F0 (~7 500 K)</li></ul>'
+            contenido: '<p>En A5–A9 comienzan las primeras trazas de Fe I, Ca I junto a un Ca II ya notable (si el espectro lo cubre). Indica descenso de temperatura bajo ~8 500 K.</p><ul><li><b>Sin metales (solo Balmer dominante):</b> A5–A7 (~8 000 K)</li><li><b>Fe I / Ca I tenues emergentes:</b> A8–F0 (~7 500 K)</li></ul>'
         },
         lineas: [
             { lambda: 3934, label: 'Ca II K',   color: '#f39c12' },
@@ -2912,11 +2948,13 @@ se usará el criterio alternativo (Balmer + Mg II + Fe I).</em></p>`
             { lambda: 4861, label: 'Hβ',         color: '#fbbf24' },
         ],
         opciones: [
-            { texto: 'Solo Ca II K, sin otras metálicas',     icono: '⚖️', clase: 'opcion-comp',
+            { texto: 'Sin metales visibles — solo Ca II K (si visible) o Balmer puro',
+              icono: '⚖️', clase: 'opcion-comp',
               detalle: 'A5 – A7',
               siguiente: 'resultado',
-              resultado: { tipo: 'A', subtipo: 'A5–A7', criterio: 'Ca II K = ½ Hδ, metales aún ausentes. ~8 000 K.' }},
-            { texto: 'Ca II K + trazas de Fe I o Ca I',       icono: '🔶', clase: 'opcion-mayor',
+              resultado: { tipo: 'A', subtipo: 'A5–A7', criterio: 'Ca II K ≈ ½ Hδ, Fe I / Ca I aún ausentes. ~8 000 K.' }},
+            { texto: 'Metales tenues visibles (Fe I, Ca I) — con o sin Ca II K',
+              icono: '🔶', clase: 'opcion-mayor',
               detalle: 'A8 – A9 / F0',
               siguiente: 'tipoF' },
         ]
@@ -3681,11 +3719,15 @@ function arbolRenderizarNodo(nodoId) {
         </div>`;
     }).join('');
 
-    // ── Aviso de sin cobertura azul en nodo 'intermedias' ──────────────────
+    // ── Aviso de sin cobertura azul en nodos que requieren Ca II K (3934 Å) ──
     // Si el espectro cargado empieza por encima de 3950 Å, Ca II K y Hε son
-    // inobservables. Mostramos un banner de advertencia y añadimos un botón
-    // que redirige al nodo alternativo (Balmer + Mg II + Fe I).
-    if (nodoId === 'intermedias' && arbolEspectroData && arbolEspectroData.wmin > 3950) {
+    // inobservables. Mostramos banner + botón que redirige al nodo alternativo.
+    const NODOS_SIN_COBERTURA = {
+        'intermedias': { nodoAlt: 'intermedias_alt', descripcion: 'Balmer (Hδ, Hγ, Hβ) + Mg II 4481 + Fe I 4383' },
+        'tipoA':       { nodoAlt: 'tipoA_alt',       descripcion: 'anchura de Hδ/Hγ + aparición de Mg II 4481' },
+    };
+    if (NODOS_SIN_COBERTURA[nodoId] && arbolEspectroData && arbolEspectroData.wmin > 3950) {
+        const cfg = NODOS_SIN_COBERTURA[nodoId];
         // Banner de aviso
         const banner = document.createElement('div');
         banner.className = 'criterio-banner criterio-alternativo';
@@ -3702,11 +3744,11 @@ function arbolRenderizarNodo(nodoId) {
         wrapper.innerHTML =
             `<div class="arbol-opcion-row">
                 <button class="btn-arbol-opcion opcion-gen"
-                    onclick="arbolElegirOpcion({texto:'Sin cobertura Ca II K / Hε', siguiente:'intermedias_alt'})">
+                    onclick="arbolElegirOpcion({texto:'Sin cobertura Ca II K / Hε', siguiente:'${cfg.nodoAlt}'})">
                     <span class="arbol-opcion-icono">🔭</span>
                     <span class="arbol-opcion-cuerpo">
                         <span class="arbol-opcion-label">Mi espectro no cubre esa región (empieza en ~4000 Å)</span>
-                        <span class="arbol-opcion-detalle">→ Usar criterio alternativo: Hδ + Mg II 4481 + Fe I 4383</span>
+                        <span class="arbol-opcion-detalle">→ Usar criterio alternativo: ${cfg.descripcion}</span>
                     </span>
                 </button>
             </div>`;
